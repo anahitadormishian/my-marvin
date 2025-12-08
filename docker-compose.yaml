@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: my_marvin
+    ports:
+      - "8080:8080"
+    environment:
+      - CASC_JENKINS_CONFIG=/var/jenkins_home/my_marvin.yml
+    volumes:
+      - ./my_marvin.yml:/var/jenkins_home/my_marvin.yml:ro
+      - ./job_dsl.groovy:/var/jenkins_home/job_dsl.groovy:ro
+      - jenkins_data:/var/jenkins_home
+
+volumes:
+  jenkins_data:
