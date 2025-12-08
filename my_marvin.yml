@@ -26,20 +26,24 @@ jenkins:
             description: "Marvin master"
             permissions:
               - "Overall/Administer"
-            assignments:
-              - "chocolateen"
+            entries:
+              - user: "chocolateen"
 
           - name: "ape"
             description: "Pedagogical team member"
             permissions:
+              - "Overall/Read"
+              - "Job/Read"
               - "Job/Build"
               - "Job/Workspace"
-            assignments:
-              - "i_dont_know"
+            entries:
+              - user: "i_dont_know"
 
           - name: "gorilla"
             description: "Group Obsessively Researching Innovation Linked to Learning and Accomplishment"
             permissions:
+              - "Overall/Read"
+              - "Job/Read"
               - "Job/Build"
               - "Job/Workspace"
               - "Job/Create"
@@ -47,57 +51,55 @@ jenkins:
               - "Job/Delete"
               - "Job/Move"
               - "Job/Cancel"
-            assignments:
-              - "vaugie_g"
+            entries:
+              - user: "vaugie_g"
 
           - name: "assist"
             description: "Assistant"
             permissions:
+              - "Overall/Read"
               - "Job/Read"
               - "Job/Workspace"
-            assignments:
-              - "nasso"
+            entries:
+              - user: "nasso"
 
-  security:
-    remotingCLI:
-      enabled: false
+unclassified:
+  location:
+    url: "http://localhost:8080/"
 
-  unclassified:
-    location:
-      url: "http://localhost:8080/"
+jobs:
+  - script: |
+      folder('Tools') {
+        description('Folder for miscellaneous tools.')
+      }
 
-  jobs:
-    - script: >
-        folder('Tools') {
-          description('Folder for miscellaneous tools.')
+      job('Tools/clone-repository') {
+        description('Clone a repository from the provided URL')
+
+        parameters {
+          stringParam('GIT_REPOSITORY_URL', '', 'Git URL of the repository to clone')
         }
 
-        job('Tools/clone-repository') {
-          description('Clone a Git repository from a given URL.')
-          parameters {
-            stringParam('GIT_REPOSITORY_URL', '', 'Git URL of the repository to clone')
-          }
-          wrappers {
-            preBuildCleanup()
-          }
-          steps {
-            shell('git clone $GIT_REPOSITORY_URL')
-          }
+        wrappers {
+          preBuildCleanup()
         }
 
-        job('Tools/SEED') {
-          description('Seed job that generates other jobs from job_dsl.groovy.')
-          parameters {
-            stringParam('GITHUB_NAME', '', 'GitHub repository owner/repo_name (e.g.: "EpitechIT31000/chocolatine")')
-            stringParam('DISPLAY_NAME', '', 'Display name for the job')
-          }
-          steps {
-            dsl {
-              external('job_dsl.groovy')
-              ignoreExisting(false)
-              removeAction('IGNORE')
-              removeViewAction('IGNORE')
-              lookupStrategy('SEED_JOB')
-            }
+        steps {
+          shell('git clone "$GIT_REPOSITORY_URL"')
+        }
+      }
+
+      job('Tools/SEED') {
+        description('Generate jobs from the provided GitHub repository and display name')
+
+        parameters {
+          stringParam('GITHUB_NAME', '', 'GitHub repository owner/repo_name')
+          stringParam('DISPLAY_NAME', '', 'Display name for the job')
+        }
+
+        steps {
+          dsl {
+            external('/var/jenkins_home/job_dsl.groovy')
           }
         }
+      }
