@@ -98,8 +98,10 @@ jobs:
         }
 
         steps {
+          shell('cp /var/jenkins_home/job_dsl.groovy job_dsl.groovy')
           dsl {
-            external('/var/jenkins_home/job_dsl.groovy')
+            external('job_dsl.groovy')
+            lookupStrategy('SEED_JOB')
           }
         }
       }
