@@ -40,7 +40,7 @@ jenkins:
               - user: "i_dont_know"
 
           - name: "gorilla"
-            description: "GORILLA group"
+            description: "Group Obsessively Researching Innovation Linked to Learning and Accomplishment"
             permissions:
               - "Overall/Read"
               - "Job/Read"
