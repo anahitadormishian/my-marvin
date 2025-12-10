@@ -69,13 +69,13 @@ unclassified:
 
 jobs:
 
-  # Create Folder
+  # 1) Create folder Tools
   - script: >
       folder('Tools') {
         description('Folder for miscellaneous tools.')
       }
 
-  # Clone Job
+  # 2) Clone repository job
   - script: >
       job('Tools/clone-repository') {
         description('Clone a repository from a URL')
@@ -93,21 +93,20 @@ jobs:
         }
       }
 
-  # SEED Job
+  # 3) SEED job (NO SHELL COPY! ONLY jobDsl)
   - script: >
       job('Tools/SEED') {
         description('Generate jobs using the job_dsl.groovy script')
 
         parameters {
-          stringParam('GITHUB_NAME', '', 'GitHub repository owner/repo_name')
+          stringParam('GITHUB_NAME', '', 'GitHub repository owner/repo_name (e.g.: "EpitechIT31000/chocolatine")')
           stringParam('DISPLAY_NAME', '', 'Display name for the generated job')
         }
 
         steps {
-          shell('cp /var/jenkins_home/job_dsl.groovy .')
           jobDsl {
             targets('job_dsl.groovy')
-            sandbox(false)
+            sandbox(true)
           }
         }
       }
