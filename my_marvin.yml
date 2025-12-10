@@ -75,15 +75,12 @@ jobs:
 
       job('Tools/clone-repository') {
         description('Clone a repository from the provided URL')
-
         parameters {
           stringParam('GIT_REPOSITORY_URL', '', 'Git URL of the repository to clone')
         }
-
         wrappers {
           preBuildCleanup()
         }
-
         steps {
           shell('git clone "$GIT_REPOSITORY_URL"')
         }
@@ -91,14 +88,11 @@ jobs:
 
       job('Tools/SEED') {
         description('Generate jobs from the provided GitHub repository and display name')
-
         parameters {
           stringParam('GITHUB_NAME', '', 'GitHub repository owner/repo_name')
           stringParam('DISPLAY_NAME', '', 'Display name for the job')
         }
-
         steps {
-          shell('cp /var/jenkins_home/job_dsl.groovy job_dsl.groovy')
           dsl {
             external('job_dsl.groovy')
             lookupStrategy('SEED_JOB')
