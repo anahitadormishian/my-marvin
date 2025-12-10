@@ -68,4 +68,45 @@ unclassified:
     url: "http://localhost:8080/"
 
 jobs:
-  - file: /var/jenkins_home/job_dsl.groovy
+
+  # Create Folder
+  - script: >
+      folder('Tools') {
+        description('Folder for miscellaneous tools.')
+      }
+
+  # Clone Job
+  - script: >
+      job('Tools/clone-repository') {
+        description('Clone a repository from a URL')
+
+        parameters {
+          stringParam('GIT_REPOSITORY_URL', '', 'Git URL of the repository to clone')
+        }
+
+        wrappers {
+          preBuildCleanup()
+        }
+
+        steps {
+          shell('git clone "$GIT_REPOSITORY_URL"')
+        }
+      }
+
+  # SEED Job
+  - script: >
+      job('Tools/SEED') {
+        description('Generate jobs using the job_dsl.groovy script')
+
+        parameters {
+          stringParam('GITHUB_NAME', '', 'GitHub repository owner/repo_name')
+          stringParam('DISPLAY_NAME', '', 'Display name for the generated job')
+        }
+
+        steps {
+          jobDsl {
+            targets('/var/jenkins_home/job_dsl.groovy')
+            sandbox(false)
+          }
+        }
+      }
