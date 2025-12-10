@@ -105,8 +105,8 @@ jobs:
 
         steps {
           jobDsl {
-            targets('/var/jenkins_home/job_dsl.groovy')
-            sandbox(false)
+            targets('job_dsl.groovy')
+            sandbox(true)
           }
         }
       }
