@@ -1,8 +1,9 @@
 //
-// Retrieve parameters provided by the SEED job
+// STATIC FOLDER: Tools
 //
-def gitHubName = binding.variables.get('GITHUB_NAME')
-def displayName = binding.variables.get('DISPLAY_NAME')
+folder('Tools') {
+    description('Folder for miscellaneous tools.')
+}
 
 //
 // STATIC JOB: clone-repository
@@ -21,47 +22,59 @@ job('Tools/clone-repository') {
     steps {
         shell('git clone "$GIT_REPOSITORY_URL"')
     }
+    // No triggers → manual only
 }
 
 //
-// DYNAMIC JOB: created by SEED using the parameters
+// STATIC JOB: SEED
+//
+job('Tools/SEED') {
+    description('Seed job to generate other jobs')
+
+    parameters {
+        stringParam('GITHUB_NAME', '', 'GitHub repository owner/repo_name (e.g. EpitechIT31000/chocolatine)')
+        stringParam('DISPLAY_NAME', '', 'Display name for the job')
+    }
+
+    steps {
+        // Execute the DSL script itself
+        dsl {
+            external('job_dsl.groovy')
+            removeAction('DELETE') // optional: keep jobs clean
+        }
+    }
+    // No triggers → manual only
+}
+
+//
+// DYNAMIC JOBS: created by SEED
 //
 if (gitHubName && displayName) {
-
-    def repoUrl = "https://github.com/${gitHubName}"
-
     job(displayName) {
+        description("Job generated from SEED for ${gitHubName}")
 
-        // GitHub project URL shown on job page
-        properties {
-            githubProjectUrl(repoUrl)
-        }
-
-        // Git SCM checkout configuration
+        // GitHub project + SCM in one go
         scm {
-            git {
-                remote {
-                    github(gitHubName, "https")
-                }
-                branch("*/main")
-            }
+            github(gitHubName, 'main')
         }
 
-        // Check for new commits every minute
+        properties {
+            githubProjectUrl("https://github.com/${gitHubName}")
+        }
+
         triggers {
-            scm("* * * * *")
+            scm('* * * * *') // poll every minute
         }
 
         wrappers {
             preBuildCleanup()
         }
 
-        // Commands required by the subject
         steps {
-            shell("make fclean")
-            shell("make")
-            shell("make tests_run")
-            shell("make clean")
+            shell('make fclean')
+            shell('make')
+            shell('make tests_run')
+            shell('make clean')
         }
     }
 }
