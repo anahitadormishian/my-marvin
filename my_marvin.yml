@@ -64,18 +64,11 @@ jenkins:
               - user: "nasso"
 
 jobs:
-
-  # --------------------------
-  # FOLDER: Tools
-  # --------------------------
   - script: >
       folder('Tools') {
         description('Folder for miscellaneous tools.')
       }
 
-  # --------------------------
-  # JOB: clone-repository
-  # --------------------------
   - script: >
       job('Tools/clone-repository') {
         parameters {
@@ -87,12 +80,8 @@ jobs:
         steps {
           shell('git clone "$GIT_REPOSITORY_URL"')
         }
-        triggers { }
       }
 
-  # --------------------------
-  # JOB: SEED
-  # --------------------------
   - script: >
       job('Tools/SEED') {
         parameters {
@@ -106,18 +95,8 @@ jobs:
             removedViewAction('IGNORE')
           }
         }
-        triggers { }
       }
 
 unclassified:
-
   location:
     url: "http://localhost:8080/"
-
-  job-dsl:
-    scriptSources:
-      - files:
-          - "/var/jenkins_home/job_dsl.groovy"
-    sandbox: true
-    failOnMissingPlugin: true
-    failOnSeedCollision: true
