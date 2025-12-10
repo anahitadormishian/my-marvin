@@ -98,9 +98,9 @@ jobs:
           stringParam('DISPLAY_NAME', '', 'Display name for the job')
         }
         steps {
-          shell('cp /var/jenkins_home/job_dsl.groovy .')
           jobDsl {
-            targets('job_dsl.groovy')
+            targets('/var/jenkins_home/job_dsl.groovy')
+            sandbox(true)
             removedJobAction('IGNORE')
             removedViewAction('IGNORE')
           }
