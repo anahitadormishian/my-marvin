@@ -1,12 +1,11 @@
 //
-// STATIC FOLDER: Tools
+// 1️⃣ Safely get parameters from SEED
 //
-folder('Tools') {
-    description('Folder for miscellaneous tools.')
-}
+def gitHubName  = binding.variables.containsKey('GITHUB_NAME') ? GITHUB_NAME : null
+def displayName = binding.variables.containsKey('DISPLAY_NAME') ? DISPLAY_NAME : null
 
 //
-// STATIC JOB: clone-repository
+// 2️⃣ STATIC JOB: Tools/clone-repository
 //
 job('Tools/clone-repository') {
     description('Clone a repository from a URL')
@@ -22,54 +21,43 @@ job('Tools/clone-repository') {
     steps {
         shell('git clone "$GIT_REPOSITORY_URL"')
     }
-    // No triggers → manual only
 }
 
 //
-// STATIC JOB: SEED
-//
-job('Tools/SEED') {
-    description('Seed job to generate other jobs')
-
-    parameters {
-        stringParam('GITHUB_NAME', '', 'GitHub repository owner/repo_name (e.g. EpitechIT31000/chocolatine)')
-        stringParam('DISPLAY_NAME', '', 'Display name for the job')
-    }
-
-    steps {
-        // Execute the DSL script itself
-        dsl {
-            external('job_dsl.groovy')
-            removeAction('DELETE') // optional: keep jobs clean
-        }
-    }
-    // No triggers → manual only
-}
-
-//
-// DYNAMIC JOBS: created by SEED
+// 3️⃣ DYNAMIC JOB: created by SEED (only if params are given)
 //
 if (gitHubName && displayName) {
+
+    def repoHttpUrl = "https://github.com/${gitHubName}"
+    def repoGitUrl  = "${repoHttpUrl}.git"
+
     job(displayName) {
-        description("Job generated from SEED for ${gitHubName}")
 
-        // GitHub project + SCM in one go
-        scm {
-            github(gitHubName, 'main')
-        }
-
+        // GitHub project URL shown on the job page
         properties {
-            githubProjectUrl("https://github.com/${gitHubName}")
+            githubProjectUrl(repoHttpUrl)
         }
 
+        // SCM: checkout from GitHub
+        scm {
+            git {
+                remote {
+                    url(repoGitUrl)
+                }
+                branch('*/main')
+            }
+        }
+
+        // Poll SCM every minute for new commits
         triggers {
-            scm('* * * * *') // poll every minute
+            scm('* * * * *')
         }
 
         wrappers {
             preBuildCleanup()
         }
 
+        // 🧱 BUILD STEPS - "step by step" as your tutor wants
         steps {
             shell('make fclean')
             shell('make')
