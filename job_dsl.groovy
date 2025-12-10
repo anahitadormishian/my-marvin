@@ -1,34 +1,3 @@
-folder('Tools') {
-    description('Folder for miscellaneous tools.')
-}
-
-job('Tools/clone-repository') {
-    description('Clone a repository from the provided URL')
-    parameters {
-        stringParam('GIT_REPOSITORY_URL', '', 'Git URL of the repository to clone')
-    }
-    wrappers {
-        preBuildCleanup()
-    }
-    steps {
-        shell('git clone "$GIT_REPOSITORY_URL"')
-    }
-}
-
-job('Tools/SEED') {
-    description('Generate jobs from the provided GitHub repository and display name')
-    parameters {
-        stringParam('GITHUB_NAME', '', 'GitHub repository owner/repo_name')
-        stringParam('DISPLAY_NAME', '', 'Display name for the job')
-    }
-    steps {
-        dsl {
-            external('/var/jenkins_home/job_dsl.groovy')
-            lookupStrategy('SEED_JOB')
-        }
-    }
-}
-
 def gitHubName = binding.variables.get('GITHUB_NAME')
 def displayName = binding.variables.get('DISPLAY_NAME')
 
@@ -45,7 +14,7 @@ if (gitHubName && displayName) {
         scm {
             git {
                 remote {
-                    github(gitHubName, 'https')
+                    url("${repoUrl}.git")
                 }
                 branch("*/main")
             }
