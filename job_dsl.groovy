@@ -1,28 +1,35 @@
 def gitHubName  = binding.variables.containsKey('GITHUB_NAME') ? GITHUB_NAME : null
 def displayName = binding.variables.containsKey('DISPLAY_NAME') ? DISPLAY_NAME : null
 
-jobs:
-  - script: >
-      folder('Tools') {
-        description('Folder for miscellaneous tools.')
-      }
+// ------------------------------
+//   Folder Definition
+// ------------------------------
+folder('Tools') {
+    description('Folder for miscellaneous tools.')
+}
 
-  - script: >
-      job('Tools/SEED') {
-        description('Generate jobs using the job_dsl.groovy script')
+// ------------------------------
+//   SEED Job
+// ------------------------------
+job('Tools/SEED') {
+    description('Generate jobs using the job_dsl.groovy script')
 
-        parameters {
-          stringParam('GITHUB_NAME', '', 'GitHub repository owner/repo_name')
-          stringParam('DISPLAY_NAME', '', 'Display name for the generated job')
-        }
+    parameters {
+        stringParam('GITHUB_NAME', '', 'GitHub repository owner/repo_name')
+        stringParam('DISPLAY_NAME', '', 'Display name for the generated job')
+    }
 
-        steps {
-          jobDsl {
+    steps {
+        jobDsl {
             targets('job_dsl.groovy')
             sandbox(false)
-          }
         }
-      }
+    }
+}
+
+// ------------------------------
+//   Clone Repository Job
+// ------------------------------
 job('Tools/clone-repository') {
     description('Clone a repository from a URL')
 
@@ -39,6 +46,9 @@ job('Tools/clone-repository') {
     }
 }
 
+// ------------------------------
+//   Generated Job
+// ------------------------------
 if (gitHubName && displayName) {
 
     def repoHttpUrl = "https://github.com/${gitHubName}"
