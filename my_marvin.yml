@@ -77,23 +77,6 @@ jobs:
       }
 
   - script: >
-      job('Tools/clone-repository') {
-        description('Clone a repository from a URL')
-
-        parameters {
-          stringParam('GIT_REPOSITORY_URL', '', 'Git URL of the repository to clone')
-        }
-
-        wrappers {
-          preBuildCleanup()
-        }
-
-        steps {
-          shell('git clone "$GIT_REPOSITORY_URL"')
-        }
-      }
-
-  - script: >
       job('Tools/SEED') {
         description('Generate jobs using the job_dsl.groovy script')
 
@@ -104,7 +87,7 @@ jobs:
 
         steps {
           jobDsl {
-            targets('/var/jenkins_home/job_dsl.groovy')
+            targets('job_dsl.groovy')
             sandbox(false)
           }
         }
