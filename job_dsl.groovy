@@ -1,7 +1,28 @@
 def gitHubName  = binding.variables.containsKey('GITHUB_NAME') ? GITHUB_NAME : null
 def displayName = binding.variables.containsKey('DISPLAY_NAME') ? DISPLAY_NAME : null
 
+jobs:
+  - script: >
+      folder('Tools') {
+        description('Folder for miscellaneous tools.')
+      }
 
+  - script: >
+      job('Tools/SEED') {
+        description('Generate jobs using the job_dsl.groovy script')
+
+        parameters {
+          stringParam('GITHUB_NAME', '', 'GitHub repository owner/repo_name')
+          stringParam('DISPLAY_NAME', '', 'Display name for the generated job')
+        }
+
+        steps {
+          jobDsl {
+            targets('job_dsl.groovy')
+            sandbox(false)
+          }
+        }
+      }
 job('Tools/clone-repository') {
     description('Clone a repository from a URL')
 
