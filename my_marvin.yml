@@ -8,12 +8,15 @@ jenkins:
         - id: "chocolateen"
           name: "Hugo"
           password: "${USER_CHOCOLATEEN_PASSWORD}"
+
         - id: "vaugie_g"
           name: "Garance"
           password: "${USER_VAUGIE_G_PASSWORD}"
+
         - id: "i_dont_know"
           name: "Jeremy"
           password: "${USER_I_DONT_KNOW_PASSWORD}"
+
         - id: "nasso"
           name: "Nassim"
           password: "${USER_NASSO_PASSWORD}"
@@ -68,14 +71,11 @@ unclassified:
     url: "http://localhost:8080/"
 
 jobs:
-
-  # 1) Create folder Tools
   - script: >
       folder('Tools') {
         description('Folder for miscellaneous tools.')
       }
 
-  # 2) Clone repository job
   - script: >
       job('Tools/clone-repository') {
         description('Clone a repository from a URL')
@@ -93,20 +93,19 @@ jobs:
         }
       }
 
-  # 3) SEED job (NO SHELL COPY! ONLY jobDsl)
   - script: >
       job('Tools/SEED') {
         description('Generate jobs using the job_dsl.groovy script')
 
         parameters {
-          stringParam('GITHUB_NAME', '', 'GitHub repository owner/repo_name (e.g.: "EpitechIT31000/chocolatine")')
+          stringParam('GITHUB_NAME', '', 'GitHub repository owner/repo_name')
           stringParam('DISPLAY_NAME', '', 'Display name for the generated job')
         }
 
         steps {
           jobDsl {
-            targets('job_dsl.groovy')
-            sandbox(true)
+            targets('/var/jenkins_home/job_dsl.groovy')
+            sandbox(false)
           }
         }
       }
