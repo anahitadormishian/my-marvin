@@ -99,9 +99,13 @@ jobs:
         }
         steps {
           jobDsl {
-            targets('/var/jenkins_home/job_dsl.groovy')
-            removedJobAction('IGNORE')
-            removedViewAction('IGNORE')
+            shell('cp /var/jenkins_home/job_dsl.groovy .')
+            
+            
+            jobDsl {
+              targets('job_dsl.groovy')
+              removedJobAction('IGNORE')
+              removedViewAction('IGNORE')
           }
         }
       }
