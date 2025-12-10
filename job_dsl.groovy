@@ -1,12 +1,7 @@
-//
-// 1️⃣ Safely get parameters from SEED
-//
 def gitHubName  = binding.variables.containsKey('GITHUB_NAME') ? GITHUB_NAME : null
 def displayName = binding.variables.containsKey('DISPLAY_NAME') ? DISPLAY_NAME : null
 
-//
-// 2️⃣ STATIC JOB: Tools/clone-repository
-//
+
 job('Tools/clone-repository') {
     description('Clone a repository from a URL')
 
@@ -23,9 +18,6 @@ job('Tools/clone-repository') {
     }
 }
 
-//
-// 3️⃣ DYNAMIC JOB: created by SEED (only if params are given)
-//
 if (gitHubName && displayName) {
 
     def repoHttpUrl = "https://github.com/${gitHubName}"
@@ -33,12 +25,10 @@ if (gitHubName && displayName) {
 
     job(displayName) {
 
-        // GitHub project URL shown on the job page
         properties {
             githubProjectUrl(repoHttpUrl)
         }
 
-        // SCM: checkout from GitHub
         scm {
             git {
                 remote {
@@ -48,7 +38,6 @@ if (gitHubName && displayName) {
             }
         }
 
-        // Poll SCM every minute for new commits
         triggers {
             scm('* * * * *')
         }
@@ -57,7 +46,6 @@ if (gitHubName && displayName) {
             preBuildCleanup()
         }
 
-        // 🧱 BUILD STEPS - "step by step" as your tutor wants
         steps {
             shell('make fclean')
             shell('make')
