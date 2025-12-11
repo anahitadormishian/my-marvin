@@ -15,7 +15,7 @@ job('Tools/SEED') {
     description('Generate jobs using the job_dsl.groovy script')
 
     parameters {
-        stringParam('GITHUB_NAME', '', 'GitHub repository owner/repo_name')
+        stringParam('GITHUB_NAME', '', 'GitHub repository owner/repo_name (e.g.: "EpitechIT31000/chocolatine")' )
         stringParam('DISPLAY_NAME', '', 'Display name for the generated job')
     }
 
@@ -46,9 +46,6 @@ job('Tools/clone-repository') {
     }
 }
 
-// ------------------------------
-//   Generated Job
-// ------------------------------
 if (gitHubName && displayName) {
 
     def repoHttpUrl = "https://github.com/${gitHubName}"
