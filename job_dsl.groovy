@@ -15,7 +15,7 @@ job('Tools/SEED') {
     description('Generate jobs using the job_dsl.groovy script')
 
     parameters {
-        stringParam('GITHUB_NAME', '', 'GitHub repository owner/repo_name (e.g.: "EpitechIT31000/chocolatine")' )
+        stringParam('GITHUB_NAME', '', 'GitHub repository owner/repo_name (e.g.: "EpitechIT31000/chocolatine")')
         stringParam('DISPLAY_NAME', '', 'Display name for the job')
     }
 
