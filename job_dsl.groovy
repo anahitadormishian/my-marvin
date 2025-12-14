@@ -1,84 +1,53 @@
-def gitHubName  = binding.variables.containsKey('GITHUB_NAME') ? GITHUB_NAME : null
-def displayName = binding.variables.containsKey('DISPLAY_NAME') ? DISPLAY_NAME : null
-
-// ------------------------------
-//   Folder Definition
-// ------------------------------
 folder('Tools') {
+    displayName('Tools')
     description('Folder for miscellaneous tools.')
 }
 
-// ------------------------------
-//   SEED Job
-// ------------------------------
-job('Tools/SEED') {
-    description('Generate jobs using the job_dsl.groovy script')
+freeStyleJob('Tools/clone-repository') {
+    parameters {
+        stringParam('GIT_REPOSITORY_URL', '', 'Git URL of the repository to clone')
+    }
+    wrappers {
+        preBuildCleanup()
+    }
+    steps {
+        shell('git clone $GIT_REPOSITORY_URL')
+    }
+}
 
+freeStyleJob('Tools/SEED') {
     parameters {
         stringParam('GITHUB_NAME', '', 'GitHub repository owner/repo_name (e.g.: "EpitechIT31000/chocolatine")')
         stringParam('DISPLAY_NAME', '', 'Display name for the job')
     }
-
     steps {
         jobDsl {
-            targets('job_dsl.groovy')
-            sandbox(false)
+            scriptText('''
+freeStyleJob(DISPLAY_NAME) {
+    properties {
+        githubProjectUrl("https://github.com/${GITHUB_NAME}/")
+    }
+    scm {
+        git {
+            remote {
+                github(GITHUB_NAME, "https")
+            }
         }
     }
-}
-
-// ------------------------------
-//   Clone Repository Job
-// ------------------------------
-job('Tools/clone-repository') {
-    description('Clone a repository from a URL')
-
-    parameters {
-        stringParam('GIT_REPOSITORY_URL', '', 'Git URL of the repository to clone')
+    triggers {
+        scm("* * * * *")
     }
-
     wrappers {
         preBuildCleanup()
     }
-
     steps {
-        shell('git clone "$GIT_REPOSITORY_URL"')
+        shell("make fclean")
+        shell("make")
+        shell("make tests_run")
+        shell("make clean")
     }
 }
-
-if (gitHubName && displayName) {
-
-    def repoHttpUrl = "https://github.com/${gitHubName}"
-    def repoGitUrl  = "${repoHttpUrl}.git"
-
-    job(displayName) {
-
-        properties {
-            githubProjectUrl(repoHttpUrl)
-        }
-
-        scm {
-            git {
-                remote {
-                    url(repoGitUrl)
-                }
-                branch('*/main')
-            }
-        }
-
-        triggers {
-            scm('* * * * *')
-        }
-
-        wrappers {
-            preBuildCleanup()
-        }
-
-        steps {
-            shell('make fclean')
-            shell('make')
-            shell('make tests_run')
-            shell('make clean')
+''')
         }
     }
 }
